@@ -1,8 +1,11 @@
 # Fetch all nike-plus activites (NRC+NTC)
 
 # param:<BEARER_TOKEN> (obtained from nike-webapp)
+# param:<AFTER_TIME> - UNIX epoch time in milliseconds
 
 readonly bearer_token="$1"
+readonly after_time="$2"
+
 if [[ -z "$bearer_token" ]]; then
   echo "Usage: $0 bearer_token"
   exit
@@ -22,10 +25,14 @@ activities_page=0
 while true; do
   activities_file="activities-${activities_page}.json"
 
-  if [[ -z "$after_id" ]]; then
+  if [[ -z "$after_id" ]]  && [[ -z "$after_time" ]]; then
     url="https://api.nike.com/sport/v3/me/activities/after_time/0"
-  else
+  elif [[ ! -z "$after_id" ]]; then
     url="https://api.nike.com/sport/v3/me/activities/after_id/${after_id}"
+  elif [[ ! -z "$after_time" ]]; then
+    url="https://api.nike.com/sport/v3/me/activities/after_time/${after_time}"
+  else
+    epoch "Check URL"
   fi
 
   echo "Fetch $url..."
